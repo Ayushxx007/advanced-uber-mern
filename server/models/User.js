@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const validator=require('validator');
-const isEmail = require("validator/es/lib/isEmail");
 const bcrypt=require('bcrypt');
 const jwt=require('jsonwebtoken');
 
@@ -42,14 +41,18 @@ const userSchema=mongoose.Schema(
             type:String,
         }
 
-
     }
 
 
 ,{timestamps:true});
 
 userSchema.methods.getSignedJwtToken=function(){
-    return jwt.sign({id:this._id},process.env.JWT_SECRET,{expiresIn:process.env.JWT_SECRET});
+
+    return jwt.sign(
+        { id: this._id },
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_EXPIRES_IN }
+    );
 
 }
 
@@ -58,7 +61,7 @@ userSchema.methods.matchPassword=async function(enteredPassword){
     return await bcrypt.compare(enteredPassword,this.password);
 }
 
-userSchema.static.hashPassword=async function(password){
+userSchema.statics.hashPassword=async function(password){
 
     return await bcrypt.hash(password,10);
 }
